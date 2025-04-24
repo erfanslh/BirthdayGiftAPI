@@ -1,9 +1,12 @@
 using BirthdayApp;
 using BirthdayApp.AutoMapper;
 using BirthdayApp.Model;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +24,33 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 // AutoMapper Configs
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
+#region Configure JWT Authentication
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        // Read Issuer and Audience from appsettings.json
+        ValidIssuer = builder.Configuration["JWT:Issuer"],
+        ValidAudience = builder.Configuration["JWT:Audience"],
+
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]!)),
+    };
+});
+
+#endregion
+
+builder.Services.AddAuthorization();
+builder.Services.AddControllers();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -34,10 +64,10 @@ app.UseHttpsRedirection();
 
 var summaries = new[]
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+    "AirPod", "PS5", "Gaming PC", "Piano", "Apple Watch", "Flower"
 };
 
-app.MapGet("/weatherforecast", () =>
+app.MapGet("/BirthdayAPI", () =>
 {
     var forecast = Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
@@ -49,9 +79,13 @@ app.MapGet("/weatherforecast", () =>
         .ToArray();
     return forecast;
 })
-.WithName("GetWeatherForecast")
+.WithName("Get Birthday Gift")
 .WithOpenApi();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
 app.Run();
 
 internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
