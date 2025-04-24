@@ -2,6 +2,7 @@ using BirthdayApp;
 using BirthdayApp.AutoMapper;
 using BirthdayApp.Model;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -13,7 +14,40 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+#region Swagger Configurations
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new() { Title = "Birthday APP", Version = "v1" });
+
+    options.AddSecurityDefinition("Bearer", new()
+    {
+        Name="Authorization",
+        Type= Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Description ="Enter 'Bearer' then [Space]  + Your JWT toekn, to identify yourself",
+        Scheme= "bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+    });
+
+    options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+        {
+            Reference= new Microsoft.OpenApi.Models.OpenApiReference
+            {
+                Type= Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                Id = "Bearer"
+            }
+        },
+        new string []{ }
+        }
+    });
+});
+#endregion
+
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("ApiBirthdayApp")));
 
 // Identity Configuration
@@ -62,25 +96,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "AirPod", "PS5", "Gaming PC", "Piano", "Apple Watch", "Flower"
-};
 
-app.MapGet("/BirthdayAPI", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("Get Birthday Gift")
-.WithOpenApi();
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -88,7 +104,3 @@ app.UseAuthorization();
 app.MapControllers();
 app.Run();
 
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
