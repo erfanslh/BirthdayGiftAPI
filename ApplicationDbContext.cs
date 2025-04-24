@@ -12,14 +12,30 @@ namespace BirthdayApp
                 
         }
         public DbSet<WishList> wishLists { get; set; }
+        public DbSet<Friendship> friendships { get; set; }
         protected override void OnModelCreating(ModelBuilder model)
         {
             base.OnModelCreating(model);
 
+            // WishList Table
             model.Entity<WishList>()
                 .HasOne(x => x.Owner)
-                .WithMany(i => i.wishLists)
+                .WithMany(x => x.wishLists)
                 .HasForeignKey(x => x.OwnerId);
+
+
+            // Friendship Table
+            model.Entity<Friendship>()
+                .HasOne(x => x.Requester)
+                .WithMany(x => x.SentFriendRequests)
+                .HasForeignKey(x => x.RequesterId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            model.Entity<Friendship>()
+                .HasOne(x => x.Receiver)
+                .WithMany(x => x.ReceivedFriendRequests)
+                .HasForeignKey(x => x.ReceiverId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

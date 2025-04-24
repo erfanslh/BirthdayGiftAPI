@@ -94,6 +94,37 @@ namespace BirthdayApp.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("BirthdayApp.Model.Friendship", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ReceiverId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("RequesterId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReceiverId");
+
+                    b.HasIndex("RequesterId");
+
+                    b.ToTable("friendships");
+                });
+
             modelBuilder.Entity("BirthdayApp.Model.WishList", b =>
                 {
                     b.Property<int>("Id")
@@ -263,6 +294,25 @@ namespace BirthdayApp.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("BirthdayApp.Model.Friendship", b =>
+                {
+                    b.HasOne("BirthdayApp.Model.ApplicationUser", "Receiver")
+                        .WithMany("ReceivedFriendRequests")
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BirthdayApp.Model.ApplicationUser", "Requester")
+                        .WithMany("SentFriendRequests")
+                        .HasForeignKey("RequesterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Receiver");
+
+                    b.Navigation("Requester");
+                });
+
             modelBuilder.Entity("BirthdayApp.Model.WishList", b =>
                 {
                     b.HasOne("BirthdayApp.Model.ApplicationUser", "Owner")
@@ -327,6 +377,10 @@ namespace BirthdayApp.Migrations
 
             modelBuilder.Entity("BirthdayApp.Model.ApplicationUser", b =>
                 {
+                    b.Navigation("ReceivedFriendRequests");
+
+                    b.Navigation("SentFriendRequests");
+
                     b.Navigation("wishLists");
                 });
 #pragma warning restore 612, 618
