@@ -1,0 +1,14 @@
+# Visual Studio cache
+.vs/
+*.user
+*.suo
+
+# Build outputs
+bin/
+obj/
+
+# Sensitive configuration files 
+**/appsettings*.json
+**/appsettings.Development*.json
+# Others
+*.log
