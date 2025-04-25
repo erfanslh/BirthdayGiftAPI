@@ -1,6 +1,9 @@
 using BirthdayApp;
 using BirthdayApp.AutoMapper;
+using BirthdayApp.DTO;
 using BirthdayApp.Model;
+using BirthdayApp.Repository;
+using BirthdayApp.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -49,6 +52,9 @@ builder.Services.AddSwaggerGen(options =>
 #endregion
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("ApiBirthdayApp")));
+
+builder.Services.AddScoped<IFriendshipRepository, FriendshipRepository>();
+//builder.Services.AddScoped<IFriendshipService, FriendshipService>();
 
 // Identity Configuration
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
