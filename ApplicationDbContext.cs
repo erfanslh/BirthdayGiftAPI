@@ -11,8 +11,8 @@ namespace BirthdayApp
         {
                 
         }
-        public DbSet<WishList> wishLists { get; set; }
-        public DbSet<Friendship> friendships { get; set; }
+        public DbSet<WishList> Wishlists { get; set; }
+        public DbSet<Friendship> Friendships { get; set; }
         protected override void OnModelCreating(ModelBuilder model)
         {
             base.OnModelCreating(model);
