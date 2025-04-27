@@ -11,7 +11,7 @@ namespace BirthdayApp.AutoMapper
             CreateMap<RegisterDTO,ApplicationUser>().ForMember(m=> m.UserName, opt=> opt.MapFrom(src=> src.Email));
 
             CreateMap<Friendship, FriendshipDTO>()
-                .ForMember(dest => dest.ReceiverName, option => option.MapFrom(x => x.Requester.Name))
+                .ForMember(dest => dest.RequesterName, option => option.MapFrom(x => x.Requester.Name))
                 .ForMember(dest => dest.ReceiverName, option => option.MapFrom(x => x.Receiver.Name))
                 .ReverseMap();
             
