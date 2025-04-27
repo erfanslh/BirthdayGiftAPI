@@ -8,5 +8,9 @@ namespace BirthdayApp.Model
         public DateTime BirthDate { get; set; }
 
         public ICollection<WishList> wishLists = new List<WishList>();
+
+        public ICollection<Friendship> SentFriendRequests { get; set; } = new List<Friendship>();
+        public ICollection<Friendship> ReceivedFriendRequests { get; set; } = new List<Friendship>();
+
     }
 }
