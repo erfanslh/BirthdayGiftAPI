@@ -17,6 +17,20 @@ namespace BirthdayApp.Repository
             return friendship;
         }
 
+        public async Task<Friendship?> AcceptedFriendshipAsync(string requesterId, string receiverId)
+        {
+            var friendship = await _context.Friendships.FirstOrDefaultAsync(x => x.RequesterId == requesterId && x.ReceiverId == receiverId && x.Status == FriendshipStatus.Accepted);
+            if (friendship is null)
+            {
+                throw new Exception("No friendship between");
+            }
+            return friendship;
+        }
+        public async Task<Friendship?> PendingRequestAsync(string requsterId, string receiverId)
+        {
+            return await _context.Friendships.FirstOrDefaultAsync(x => x.RequesterId == requsterId && x.ReceiverId == receiverId && x.Status == FriendshipStatus.Pending);
+        }
+
         public async Task<Friendship?> GetByIdAsync(int id)
         {
             var findFrienship = await _context.Friendships.FindAsync(id);
@@ -26,7 +40,6 @@ namespace BirthdayApp.Repository
             }
             return findFrienship;
         }
-
         public async Task<Friendship?> GetFriendshipAsync(string requesterId, string receiverId)
         {
             var findFriendship = await _context.Friendships.FirstOrDefaultAsync(x => x.ReceiverId == receiverId && x.RequesterId == requesterId);
@@ -40,6 +53,8 @@ namespace BirthdayApp.Repository
         public async Task<IEnumerable<Friendship>> GetFriendsOfUserAsync(string userId)
         {
             return await _context.Friendships.AsNoTracking()
+                .Include(x=> x.Requester)
+                .Include(x=> x.Receiver)
                 .Where(x => (x.RequesterId == userId || x.ReceiverId == userId) && (x.Status == FriendshipStatus.Accepted))
                 .ToListAsync();
         }
@@ -47,6 +62,8 @@ namespace BirthdayApp.Repository
         public async Task<IEnumerable<Friendship>> GetPendingRequestsAsync(string userId)
         {
             return await _context.Friendships.AsNoTracking()
+                .Include(x => x.Receiver)
+                .Include(x=> x.Requester)
                 .Where(x => (x.RequesterId == userId || x.ReceiverId == userId) && (x.Status == FriendshipStatus.Pending))
                 .ToListAsync();
         }

@@ -2,17 +2,25 @@
 using BirthdayApp.DTO;
 using BirthdayApp.Model;
 using BirthdayApp.Repository;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
+using System.Security.Claims;
 
 namespace BirthdayApp.Services
 {
     public class FriendshipService : IFriendshipService
+        
     {
         private readonly IFriendshipRepository _repository;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
-        public FriendshipService(IFriendshipRepository repository, IMapper mapper)
+        public FriendshipService(IFriendshipRepository repository, IMapper mapper, UserManager<ApplicationUser> userManager)
         {
             _repository = repository;
             _mapper = mapper;
+            _userManager = userManager;
         }
 
         public async Task<bool> AcceptAsync(int friendshipId)
@@ -30,29 +38,29 @@ namespace BirthdayApp.Services
             {
                 throw new Exception("The request has been already Accepted");
             }
-
             checkFriendship.Status = FriendshipStatus.Accepted;
             await _repository.SaveChangesAsync();
             return true;
         }
 
-        public async Task<bool> BlockAsync(int friendshipId)
+        public async Task<FriendshipDTO> AcceptedFriendsAsync(string requesterId, string receiverId)
         {
-            var checkFriendship = await _repository.GetByIdAsync(friendshipId);
-            if (checkFriendship is null)
+            var final = await _repository.AcceptedFriendshipAsync(requesterId, receiverId);
+            if (final is null)
             {
-                throw new Exception("The friendship that u have requested is not found");
+                throw new Exception("You have no friends yet");
             }
-            if (checkFriendship.Status == FriendshipStatus.Blocked)
-            {
-                throw new Exception("The user has been Blocked");
-            }
-
-            checkFriendship.Status = FriendshipStatus.Blocked;
-            await _repository.SaveChangesAsync();
-            return true;
+            return _mapper.Map<FriendshipDTO>(final);
         }
-
+        public async Task<FriendshipDTO> PendingFriendRequestsAsync(string requesterId, string receiverId)
+        {
+            var final = await _repository.PendingRequestAsync(requesterId, receiverId);
+            if (final is null)
+            {
+                throw new Exception("You have not any friend Request received");
+            }
+            return _mapper.Map<FriendshipDTO>(final);
+        }
         public async Task<bool> DeclineAsync(int friendshipId)
         {
             var checkFriendship = await _repository.GetByIdAsync(friendshipId);
@@ -80,6 +88,12 @@ namespace BirthdayApp.Services
              
         }
 
+        public async Task<FriendshipDTO> GetFriendshipByIdAsync(int friendshipId)
+        {
+            var friendship = await _repository.GetByIdAsync(friendshipId);
+            return _mapper.Map<FriendshipDTO>(friendship);
+        }
+
         public async Task<IEnumerable<FriendshipDTO>> GetPendingResultAsync(string userId)
         {
             var findFriendship = await _repository.GetPendingRequestsAsync(userId);
@@ -92,11 +106,8 @@ namespace BirthdayApp.Services
 
         public async Task<FriendshipDTO> SendRequestAsync(string requesterId, string receiverId)
         {
-            var checkFriendship = await _repository.GetFriendshipAsync(requesterId, receiverId);
-            if (checkFriendship is not null)
-            {
-                throw new Exception($"A Friendship between User with id: {requesterId} and User with id: {receiverId} exists.");
-            }
+            var requesterName = await _userManager.FindByIdAsync(requesterId);
+            var receiverName = await _userManager.FindByIdAsync(receiverId);
 
             var newFriendship = new Friendship
             {
@@ -107,22 +118,6 @@ namespace BirthdayApp.Services
 
             await _repository.AddAsync(newFriendship);
             return _mapper.Map<FriendshipDTO>(newFriendship);
-        }
-
-        public async Task<bool> UnblockAsync(int friendshipId)
-        {
-            var checkFriendship = await _repository.GetByIdAsync(friendshipId);
-            if (checkFriendship is null)
-            {
-                throw new Exception("The friendship that u have requested is not found");
-            }
-            if (checkFriendship.Status != FriendshipStatus.Blocked)
-            {
-                throw new Exception("The user is not blocked");
-            }
-            checkFriendship.Status = FriendshipStatus.Rejected;
-            await _repository.SaveChangesAsync();
-            return true;
         }
 
         public async Task<FriendshipDTO> UndoRequestAsync(string requesterId, string receiverId)
@@ -151,6 +146,18 @@ namespace BirthdayApp.Services
             var mapper = _mapper.Map<FriendshipDTO>(checkFriendship);
             await _repository.SaveChangesAsync();
             return mapper;
+        }
+
+        public async Task<FriendshipDTO> Unfriend(string requesterId,string receiverId)
+        {
+            var Findfriendship = await _repository.AcceptedFriendshipAsync(requesterId, receiverId);
+            if (Findfriendship is null)
+            {
+                throw new Exception($"You have no Friendship with {receiverId}");
+            }
+            await _repository.Remove(Findfriendship.Id);
+            return _mapper.Map<FriendshipDTO>(Findfriendship);
+
         }
     }
 }

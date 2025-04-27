@@ -15,6 +15,8 @@ namespace BirthdayApp.Repository
         Task<IEnumerable<Friendship>> GetPendingRequestsAsync(string userId);
         // get a friendship by id
         Task<Friendship?> GetByIdAsync(int id);
+        Task<Friendship?> AcceptedFriendshipAsync(string requesterId, string receiverId);
+        Task<Friendship?> PendingRequestAsync(string requesterId, string receiverId);
         Task SaveChangesAsync();
     }
 }

@@ -60,6 +60,14 @@ namespace BirthdayApp.Controllers
             return Ok( new {token});
         }
 
+        [HttpGet("getInfo")]
+        public IActionResult GetProfile()
+        {
+            var email = User.FindFirstValue(ClaimTypes.Email);
+
+            return Ok(new { Email = email });
+        }
+
         private string GenerateJwtToken(ApplicationUser user)
         {
             var claims = new[]
