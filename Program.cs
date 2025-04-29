@@ -1,6 +1,7 @@
 using BirthdayApp;
 using BirthdayApp.AutoMapper;
 using BirthdayApp.DTO;
+using BirthdayApp.Middlewares;
 using BirthdayApp.Model;
 using BirthdayApp.Repository;
 using BirthdayApp.Services;
@@ -114,6 +115,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 
+// ExceptionMiddleware
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();
