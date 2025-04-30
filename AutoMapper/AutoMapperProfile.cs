@@ -14,7 +14,9 @@ namespace BirthdayApp.AutoMapper
                 .ForMember(dest => dest.RequesterName, option => option.MapFrom(x => x.Requester.Name))
                 .ForMember(dest => dest.ReceiverName, option => option.MapFrom(x => x.Receiver.Name))
                 .ReverseMap();
-            
+
+
+            CreateMap<UpdateWishListDTO, WishList>();
         }
     }
 }
