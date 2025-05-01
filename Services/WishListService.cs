@@ -2,6 +2,7 @@
 using BirthdayApp.DTO;
 using BirthdayApp.Model;
 using BirthdayApp.Repository;
+using System.Data;
 
 namespace BirthdayApp.Services
 {
@@ -19,6 +20,7 @@ namespace BirthdayApp.Services
         {
             var addWish = _mapper.Map<WishList>(addWishListDTO);
             addWish.OwnerId = userid;
+            addWish.IsBooked = false;
 
             await _repository.AddAsync(addWish);
             await _repository.SaveChangesAsync();
@@ -26,12 +28,17 @@ namespace BirthdayApp.Services
             return _mapper.Map<WishListDTO>(addWish);
         }
 
+        #region Book_Unbook
         public async Task<WishListDTO> BookWishAsync(int id, string bookedByUser)
         {
             var bookWish = await _repository.GetByIdAsync(id);
             if (bookWish == null || bookWish.IsBooked==true)
             {
                 throw new Exception($"The Item that you requested {bookWish?.Title} is already booked by another person");
+            }
+            if (bookedByUser == bookWish.OwnerId)
+            {
+                throw new Exception($"You can not book your wish Item.");
             }
 
             bookWish.IsBooked = true;
@@ -42,6 +49,26 @@ namespace BirthdayApp.Services
             return _mapper.Map<WishListDTO>(bookWish);
 
         }
+        public async Task<WishListDTO> UnBookWishAsync(int id, string bookedByUser)
+        {
+            var bookWish = await _repository.GetByIdAsync(id);
+            if (bookWish == null || bookWish.IsBooked == false)
+            {
+                throw new Exception($"The item with id: {id} is not booked or could not be found");
+            }
+            if (bookedByUser != bookWish.OwnerId)
+            {
+                throw new Exception("You have not booked this item");
+            }
+
+            bookWish.IsBooked = false;
+            bookWish.BookedByUser = null;
+
+            await _repository.Update(bookWish);
+            await _repository.SaveChangesAsync();
+            return _mapper.Map<WishListDTO>(bookWish);
+        }
+        #endregion
 
         public async Task<WishListDTO> DeleteAsync(int id, string userid)
         {
@@ -56,10 +83,10 @@ namespace BirthdayApp.Services
             return _mapper.Map<WishListDTO>(findWish);
         }
 
-        public async Task<WishListDTO> GetByIdAsync(int id)
+        public async Task<WishListDTO> GetByIdAsync(int id, string userid)
         {
             var findId = await _repository.GetByIdAsync(id);
-            if (findId == null)
+            if (findId == null || findId.OwnerId != userid)
             {
                 throw new Exception($"A wishlist with id: {id} could not be found");
             }
@@ -69,10 +96,6 @@ namespace BirthdayApp.Services
         public async Task<IEnumerable<WishListDTO>> GetUserWishListAsync(string userid)
         {
             var getUserList = await _repository.GetUserWishListAsync(userid);
-            if (getUserList == null)
-            {
-                throw new Exception($"there is no WishList for the {userid}");
-            }
             return _mapper.Map<IEnumerable<WishListDTO>>(getUserList);
         }
 
@@ -86,7 +109,7 @@ namespace BirthdayApp.Services
 
             await _repository.Update(wishList);
             await _repository.SaveChangesAsync();
-            return _mapper.Map<WishListDTO>(wishList);
+            return _mapper.Map<WishListDTO>(updateDto);
         }
     }
 }
