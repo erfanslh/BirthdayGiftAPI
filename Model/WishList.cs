@@ -7,10 +7,10 @@
         public string? Description { get; set; }
         public string? Link { get; set; }
         public bool IsBooked { get; set; }
-        public string BookedByUser { get; set; } = null!;
+        public string? BookedByUser { get; set; }
         public string OwnerId { get; set; } = null!;
 
-        public ApplicationUser Owner { get; set; } = null!;
+        public ApplicationUser? Owner { get; set; } 
 
     }
 }
