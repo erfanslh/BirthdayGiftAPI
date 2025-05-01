@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Runtime.CompilerServices;
 using System.Security.Claims;
 
-namespace BirthdayApp.Controllers
+namespace BirthdayApp.Controller
 {
     [ApiController]
     [Route("api/[Controller]")]

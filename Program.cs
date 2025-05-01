@@ -65,8 +65,16 @@ builder.Services.AddSwaggerGen(options =>
 #endregion
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("ApiBirthdayApp")));
+
+//Friendship  -  Repository and Service
 builder.Services.AddScoped<IFriendshipRepository, FriendshipRepository>();
 builder.Services.AddScoped<IFriendshipService, FriendshipService>();
+
+//WishList - Repository and Service
+builder.Services.AddScoped<IWishListRepository, WishListRepository>();
+builder.Services.AddScoped<IWishListServices, WishListService>();
+
+
 
 // Identity Configuration
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()

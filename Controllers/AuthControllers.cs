@@ -10,7 +10,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-namespace BirthdayApp.Controllers
+namespace BirthdayApp.Controller
 {
     [Route("api/[controller]")]
     [ApiController]

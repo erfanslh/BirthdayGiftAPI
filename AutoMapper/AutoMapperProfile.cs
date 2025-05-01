@@ -16,7 +16,12 @@ namespace BirthdayApp.AutoMapper
                 .ReverseMap();
 
 
-            CreateMap<UpdateWishListDTO, WishList>();
+            CreateMap<WishList, WishListDTO> ().ReverseMap();
+            CreateMap<UpdateWishListDTO, WishList>().ReverseMap();
+            CreateMap<UpdateWishListDTO, WishListDTO>().ReverseMap();
+            CreateMap<AddWishListDTO, WishList>().ReverseMap();
+
+            
         }
     }
 }
