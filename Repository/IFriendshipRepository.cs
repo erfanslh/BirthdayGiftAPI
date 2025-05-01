@@ -9,6 +9,7 @@ namespace BirthdayApp.Repository
         Task <Friendship?> Remove(int id);
         // get a friendship by requester and receiver id
         Task<Friendship?> GetFriendshipAsync(string requesterId, string receiverId);
+        Task<bool> IsFriend(string requesterId, string receiverId);
         // get all friends of a user
         Task<IEnumerable<Friendship>> GetFriendsOfUserAsync(string userId);
         // get all pending requests of a user

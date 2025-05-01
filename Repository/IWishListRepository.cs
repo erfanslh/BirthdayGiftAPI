@@ -9,6 +9,7 @@ namespace BirthdayApp.Repository
         Task<WishList> AddAsync(WishList wishList);
         Task<WishList?> Remove(WishList wishList);
         Task<WishList?> Update(WishList wishList);
+        Task<IEnumerable<WishList>> ViewFriendsWishList(string friendId);
         Task SaveChangesAsync();
     }
 }

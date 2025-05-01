@@ -43,5 +43,10 @@ namespace BirthdayApp.Repository
             _context.Wishlists.Update(wishList);
             return Task.FromResult(wishList)!;
         }
+
+        public async Task<IEnumerable<WishList>> ViewFriendsWishList(string friendId)
+        {
+            return await _context.Wishlists.Where(x => x.OwnerId == friendId && x.IsBooked == false).AsNoTracking().ToListAsync();
+        }
     }
 }

@@ -85,5 +85,16 @@ namespace BirthdayApp.Repository
         {
             await _context.SaveChangesAsync();
         }
+
+        public async Task<bool> IsFriend(string requesterId, string receiverId)
+        {
+            var friend = await _context.Friendships.Where(x=> (x.RequesterId == requesterId || x.RequesterId == receiverId) && (x.ReceiverId == receiverId || x.ReceiverId == requesterId) && x.Status == FriendshipStatus.Accepted).FirstOrDefaultAsync();
+            if (friend is null)
+            {
+                return false;
+            }
+            return true;
+            
+        }
     }
 }

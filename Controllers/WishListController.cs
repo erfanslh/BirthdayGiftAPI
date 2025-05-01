@@ -18,15 +18,15 @@ namespace BirthdayApp.Controller
             _services = services;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetUserWishes()
+        [HttpGet("MyWishList")]
+        public async Task<IActionResult> GetMyList()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null)
             {
                 return Unauthorized();
             }
-            var wishes = await _services.GetUserWishListAsync(userId);
+            var wishes = await _services.GetMyWishListAsync(userId);
             return Ok(wishes);
         }
 
@@ -39,7 +39,7 @@ namespace BirthdayApp.Controller
             return Ok(wishes);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("MyWishListByID/{id}")]
         public async Task<IActionResult> GetWishById(int id)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -50,6 +50,19 @@ namespace BirthdayApp.Controller
             var ItemList = await _services.GetByIdAsync(id, userId);
             return Ok(ItemList);
         }
+
+        [HttpGet("ViewFriendsWishList/{friendId}")]
+        public async Task<IActionResult> ViewFriendsWishList(string friendId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            var ItemList = await _services.ViewFriendsWishList(friendId, userId);
+            return Ok(ItemList);
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteWish(int id)
         {
